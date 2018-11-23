@@ -15,14 +15,6 @@
         Variance value = 32590341.01629079
         --------------------------
         
-        Feature: ClickWindow
-        --------------------------
-        Min value = nan
-        Max value = nan
-        Mean value = nan
-        Variance value = nan
-        --------------------------
-        
         Feature: LogId
         --------------------------
         Min value = 90.0

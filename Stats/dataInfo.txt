@@ -6,22 +6,22 @@
     ---------------------------
     A sample of dataset records
     ---------------------------
-        Relevant  MouseMs  ClickWindow  LogId                      Classes  RssId  Readability  Novelty    PageMs  UserId  Authority
-8        5.0     1860          1.0   3361                     |theatre      2          1.0      5.0  157922.0      51        1.0
-18       5.0     6027          0.0   3398               |entertainment      8          1.0      5.0  139452.0      51        1.0
-56       4.0     4369          1.0   6713  |news|movies|broadway|music   3616          1.0      5.0   96687.0      51        1.0
-57       4.0        0          0.0   6714                    |broadway   8173          1.0      1.0     501.0      51        1.0
-63       4.0     4888          0.0   6720                |movies|music      8          1.0      5.0  182391.0      51        1.0
+        Relevant  MouseMs  LogId                      Classes  RssId  Readability  Novelty    PageMs  UserId  Authority
+8        5.0     1860   3361                     |theatre      2          1.0      5.0  157922.0      51        1.0
+18       5.0     6027   3398               |entertainment      8          1.0      5.0  139452.0      51        1.0
+56       4.0     4369   6713  |news|movies|broadway|music   3616          1.0      5.0   96687.0      51        1.0
+57       4.0        0   6714                    |broadway   8173          1.0      1.0     501.0      51        1.0
+63       4.0     4888   6720                |movies|music      8          1.0      5.0  182391.0      51        1.0
     ------------------
     Columns of dataset
     ------------------
-    Index(['Relevant', 'MouseMs', 'ClickWindow', 'LogId', 'Classes', 'RssId',
-       'Readability', 'Novelty', 'PageMs', 'UserId', 'Authority'],
+    Index(['Relevant', 'MouseMs', 'LogId', 'Classes', 'RssId', 'Readability',
+       'Novelty', 'PageMs', 'UserId', 'Authority'],
       dtype='object')
     --------------------
     The shape of dataset
     --------------------
-    (7917, 11)
+    (7917, 10)
     --------------------
     The index of dataset
     --------------------
