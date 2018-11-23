@@ -6,7 +6,13 @@ import matplotlib.pylab as plot
 from collections import Counter
 
 
+
 def importDataset(file):
+    """
+    import data set into a panda's dataframe
+    @params file: filename to import
+    @rtype {dataFrame}
+    """
     columnNames = ['ClickScroll', 'DownArrowMs', 'VScrollMs', 'Relevant',
                    'PageUp', 'MouseMs', 'PageDown', 'ClickWindow',
                    'LogId', 'ServerTimeVisit', 'PageUpMs', 'UpArrowMs',
@@ -19,13 +25,25 @@ def importDataset(file):
 
 
 def extractRequiredDate(data):
-    columnNames = ['Relevant', 'MouseMs', 'ClickWindow', 'LogId',
+    """
+    Extract columns from dataframe with non-sparse values
+    @params data: the imported dataset 
+    @rtpe {dataFrame}
+    """
+    columnNames = ['Relevant', 'MouseMs', 'LogId',
                    'Classes', 'RssId', 'Readability', 'Novelty',
                    'PageMs', 'UserId', 'Authority']
     return data[columnNames]
 
 
 def removeNullValues(data):
+    """
+    Remove records with no classes 
+    Replace blanks with zeros for features 'MouseMs' and 'PageMs'
+    Replace blanks and -1 with min value for features 'Readability', 'Novelty', 'Authority' and 'Relevant'
+    @params data: dataframe of the dataset
+    @rtype {dataFrame}
+    """
     dataWithClasses = data.dropna(subset=['Classes'])
     dataWithCleanClasses = dataWithClasses[dataWithClasses.Classes != '|']
     dataWithCleanMouseMs = dataWithCleanClasses.MouseMs.replace(np.nan, 0)
@@ -67,7 +85,13 @@ def removeNullValues(data):
 
     return dataWithCleanClasses
 
+
 def tokenizeClasses(data):
+    """
+    Convert classes string into an array of tokens for each record in dataframe
+    @params data: dataframe of the dataset
+    @rtype {dataFrame, array}
+    """
     print (data.size)
     classes = data.Classes
     punctuationList = [p for p in string.punctuation]
@@ -83,14 +107,20 @@ def tokenizeClasses(data):
     data['Classes'] = tokensArr
     return data, classesArr
 
+
 def getLowFrequencyClasses(classes):
+    """
+    Find classes with frequency = 1, and find the top highest frequency classes
+    @params classes: array of all classes in dataframe
+    @rtype {array}
+    """
     classesCount = Counter(classes)
-    print(classesCount['news'])
     names = list(classesCount.keys())
     values = list(classesCount.values())
     lowFrequencyClasses = [key for key, value in classesCount.items() if value == 1]
     highFrequencyClassesKeys = [key for key, value in classesCount.items() if value > 125]
     highFrequencyClassesValues = [value for key, value in classesCount.items() if value > 125]
+    plot.title('Feature: Classes')
     plot.bar(highFrequencyClassesKeys,highFrequencyClassesValues)
     plot.xticks(rotation=30)
     plot.savefig('../Stats/hightest_freq_classes.png')
@@ -99,6 +129,12 @@ def getLowFrequencyClasses(classes):
 
 
 def removeLowFreqClasses(data, classes):
+    """
+    Remove records with class frequency = 1
+    @params data: dataframe of the dataset
+    @params classes: array of distinct classes
+    @rtype {dataFrame}
+    """
     classesDF = data.Classes
     for i, entry in enumerate(classesDF):
         for j, token in enumerate(entry):
@@ -107,7 +143,13 @@ def removeLowFreqClasses(data, classes):
     cleanData = data[data.astype(str).Classes != '[]']
     return cleanData
 
+
 def removeClassesAmbiguity(data):
+    """
+    Remove ambiguity from classes by replacing the classes referencing the same entity with a single class
+    @params data: dataframe of the dataset
+    @rtype {dataFrame}
+    """
     classes = data.Classes
     classesArray = []
     tokensArray = []
@@ -130,6 +172,12 @@ def removeClassesAmbiguity(data):
 
 
 def analyzeFeature(data, featureName):
+    """
+    Displays and write into a file the min/max/mean/variance values of a specific feature
+    @params data: dataframe of the dataset
+    @params featureName: the feature as a string
+    @rtype {string}
+    """
     if (data[featureName].dtype == 'int64' or data[featureName].dtype == 'float64'):
         minVal = data[featureName].values.astype(float).min()
         maxVal = data[featureName].values.astype(float).max()
@@ -146,19 +194,36 @@ def analyzeFeature(data, featureName):
         '''.format(featureName, minVal, maxVal, mean, variance)
         return featureInfo
 
+
 def writeIntoDesk(data, fileName):
+    """
+    Write/create into a file
+    @params data: dataframe of the dataset
+    @params fileName
+    """
     file = open('../Stats/{0}.txt'.format(fileName), 'w+')
     if data: 
         file.write(data)
     file.close()
 
+
 def appendToDesk(data, fileName):
+    """
+    Append to file 
+    @params data: dataframe of the dataset
+    @params fileName
+    """
     file = open('../Stats/{0}.txt'.format(fileName), 'a+')
     if data :
         file.write(data)
     file.close()
 
+
 def datasetStats(data):
+    """
+    Displays and write into a file stats about features
+    @params data: dataframe of the dataset
+    """
     dataInfo = '''
     ----------------------
     Info about dataset 
@@ -186,8 +251,37 @@ def datasetStats(data):
     writeIntoDesk('', 'featuresInfo')
     [appendToDesk (analyzeFeature(data, row), 'featuresInfo') for row in data]
     [print (analyzeFeature(data, row)) for row in data]
+    relevant = data.Relevant
+    plotStats(data, 'Relevant', 'relevant_freq')
+    plotStats(data, 'Readability', 'readability_freq')
+    plotStats(data, 'Novelty', 'novelty_freq')
+    plotStats(data, 'Authority', 'authority_freq')
+
+
+def plotStats(data, featureName, fileName):
+    """
+    Save stats about feature as png image 
+    @params data: dataframe of the dataset
+    @params featureName: feature as a string
+    @params fileName
+    """
+    feature = data[featureName]
+    featureArr = []
+    for i, entry in enumerate(feature):
+        featureArr.append(entry)
+    featureDict = Counter(featureArr)
+    featureNames = list(featureDict.keys())
+    featureValues = list(featureDict.values())
+    plot.title('Feature: {0}'.format(featureName))
+    plot.bar(range(len(featureDict)),featureValues,tick_label=featureNames)
+    plot.savefig('../Stats/{0}.png'.format(fileName))
+    plot.show()
+
 
 def preprocessorScript():
+    """
+    Computes the stats and perform the preprocessing steps
+    """
     file = '../Data/yow_userstudy_raw.xls'
     data = importDataset(file)
     extractedData = extractRequiredDate(data)
@@ -202,10 +296,21 @@ def preprocessorScript():
 
 
 def preprocessDataset():
+    """
+    Performs the preprocessing steps and returns clean data
+    @rtype {dataFrame}
+    """
     file = '../Data/yow_userstudy_raw.xls'
     data = importDataset(file)
     extractedData = extractRequiredDate(data)
     nullData = removeNullValues(extractedData)
-    return nullData
+    data, classes = tokenizeClasses(nullData)
+    classes = getLowFrequencyClasses(classes)
+    data = removeLowFreqClasses(data, classes)
+    data = removeClassesAmbiguity(data)
+    data = removeLowFreqClasses(data, classes)
+    return data
+
+
 
 preprocessorScript()
