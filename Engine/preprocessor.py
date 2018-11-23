@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import string
 import matplotlib.pylab as plot
+from collections import Counter
 
 
 def importDataset(file):
@@ -23,9 +24,6 @@ def extractRequiredDate(data):
                    'PageMs', 'UserId', 'Authority']
     return data[columnNames]
 
-
-# TODO: remove classes that occured only once
-# TODO: recheck rows with no classes
 
 def removeNullValues(data):
     dataWithClasses = data.dropna(subset=['Classes'])
@@ -81,10 +79,35 @@ def tokenizeClasses(data):
         cleanEntry = "".join([letter for letter in entry if letter not in punctuationList])
         entryTokens = str(cleanEntry).lower().lstrip('|').split('|')
         tokensArr.append(entryTokens)
+    classesArr = [ item for innerlist in tokensArr for item in innerlist ]
     data['Classes'] = tokensArr
-    return data
+    return data, classesArr
 
-def removeClassesAmiguity(data):
+def getLowFrequencyClasses(classes):
+    classesCount = Counter(classes)
+    print(classesCount['news'])
+    names = list(classesCount.keys())
+    values = list(classesCount.values())
+    lowFrequencyClasses = [key for key, value in classesCount.items() if value == 1]
+    highFrequencyClassesKeys = [key for key, value in classesCount.items() if value > 125]
+    highFrequencyClassesValues = [value for key, value in classesCount.items() if value > 125]
+    plot.bar(highFrequencyClassesKeys,highFrequencyClassesValues)
+    plot.xticks(rotation=30)
+    plot.savefig('../Stats/hightest_freq_classes.png')
+    plot.show()
+    return lowFrequencyClasses
+
+
+def removeLowFreqClasses(data, classes):
+    classesDF = data.Classes
+    for i, entry in enumerate(classesDF):
+        for j, token in enumerate(entry):
+            if token in classes:
+                entry.remove(token)
+    cleanData = data[data.astype(str).Classes != '[]']
+    return cleanData
+
+def removeClassesAmbiguity(data):
     classes = data.Classes
     classesArray = []
     tokensArray = []
@@ -124,13 +147,13 @@ def analyzeFeature(data, featureName):
         return featureInfo
 
 def writeIntoDesk(data, fileName):
-    file = open('../Data/{0}.txt'.format(fileName), 'w+')
+    file = open('../Stats/{0}.txt'.format(fileName), 'w+')
     if data: 
         file.write(data)
     file.close()
 
-def appendIntoDesk(data, fileName):
-    file = open('../Data/{0}.txt'.format(fileName), 'a+')
+def appendToDesk(data, fileName):
+    file = open('../Stats/{0}.txt'.format(fileName), 'a+')
     if data :
         file.write(data)
     file.close()
@@ -161,7 +184,7 @@ def datasetStats(data):
     print (dataInfo)
     writeIntoDesk(dataInfo, 'dataInfo')
     writeIntoDesk('', 'featuresInfo')
-    [appendIntoDesk (analyzeFeature(data, row), 'featuresInfo') for row in data]
+    [appendToDesk (analyzeFeature(data, row), 'featuresInfo') for row in data]
     [print (analyzeFeature(data, row)) for row in data]
 
 def preprocessorScript():
@@ -170,8 +193,11 @@ def preprocessorScript():
     extractedData = extractRequiredDate(data)
     nullData = removeNullValues(extractedData)
     datasetStats(nullData)
-    data = tokenizeClasses(nullData)
-    data = removeClassesAmiguity(data)
+    data, classes = tokenizeClasses(nullData)
+    classes = getLowFrequencyClasses(classes)
+    data = removeLowFreqClasses(data, classes)
+    data = removeClassesAmbiguity(data)
+    data = removeLowFreqClasses(data, classes)
     data.to_csv('../Data/clean_data.csv')
 
 
