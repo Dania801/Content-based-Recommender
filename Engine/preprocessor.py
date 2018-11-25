@@ -32,7 +32,7 @@ def extractRequiredDate(data):
     """
     columnNames = ['Relevant', 'MouseMs', 'LogId',
                    'Classes', 'RssId', 'Readability', 'Novelty',
-                   'PageMs', 'UserId', 'Authority']
+                   'PageMs', 'UserId', 'Authority', 'UserLike']
     return data[columnNames]
 
 
@@ -41,6 +41,7 @@ def removeNullValues(data):
     Remove records with no classes 
     Replace blanks with zeros for features 'MouseMs' and 'PageMs'
     Replace blanks and -1 with min value for features 'Readability', 'Novelty', 'Authority' and 'Relevant'
+    Remove negative user likes
     @params data: dataframe of the dataset
     @rtype {dataFrame}
     """
@@ -83,6 +84,7 @@ def removeNullValues(data):
     dataWithCleanClasses.Readability = dataWithCleanReadability
     dataWithCleanClasses.Authority = dataWithCleanAuthority
 
+    dataWithCleanClasses = dataWithCleanClasses[dataWithCleanClasses.UserLike > 0]
     return dataWithCleanClasses
 
 
@@ -124,7 +126,7 @@ def getLowFrequencyClasses(classes):
     plot.bar(highFrequencyClassesKeys,highFrequencyClassesValues)
     plot.xticks(rotation=30)
     plot.savefig('../Stats/hightest_freq_classes.png')
-    plot.show()
+    # plot.show()
     return lowFrequencyClasses
 
 
@@ -138,7 +140,7 @@ def removeLowFreqClasses(data, classes):
     classesDF = data.Classes
     for i, entry in enumerate(classesDF):
         for j, token in enumerate(entry):
-            if token in classes:
+            if token in classes or token == '':
                 entry.remove(token)
     cleanData = data[data.astype(str).Classes != '[]']
     return cleanData
@@ -288,6 +290,7 @@ def preprocessorScript():
     nullData = removeNullValues(extractedData)
     datasetStats(nullData)
     data, classes = tokenizeClasses(nullData)
+    print (classes)
     classes = getLowFrequencyClasses(classes)
     data = removeLowFreqClasses(data, classes)
     data = removeClassesAmbiguity(data)
@@ -313,4 +316,4 @@ def preprocessDataset():
 
 
 
-preprocessorScript()
+# preprocessorScript()
