@@ -9,15 +9,13 @@ import pickle
 
 
 
-def computeLikeFreq():
-    data = preprocessDataset()
+def computeLikeFreq(data):
     userLikes = data.UserLike
-    plotStats(data, 'UserLike', 'user_likes_freq')
+    plotStats(data, 'UserLike', 'user_likes_freq', False)
     userLikesDict = Counter(userLikes)
     return userLikesDict
 
-def classesJointFreq():
-    data = preprocessDataset()
+def classesJointFreq(data):
     classes = data.Classes
     classesArr = []
     for i, entry in enumerate(classes):
@@ -25,11 +23,11 @@ def classesJointFreq():
             classesArr.append(token)
     distinctClasses = list(set(classesArr))
     columns = ['Classes', 'UserLike']
-    data = data[columns]
+    dataset = data[columns]
     classesDict = {}
     for j, token in enumerate(distinctClasses):
         tokenArray = np.array([0,0,0,0,0])
-        for i, entry in data.iterrows():
+        for i, entry in dataset.iterrows():
             if token in entry['Classes'] and entry['UserLike'] == 1:
                 tokenArray[0]+=1
             if token in entry['Classes'] and entry['UserLike'] == 2:
@@ -47,9 +45,8 @@ def classesJointFreq():
         pickle.dump(classesDict, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
 
-def dataWithConditionalProb():
-    dataset = preprocessDataset()
-    likesFreq = computeLikeFreq()
+def dataWithConditionalProb(dataset):
+    likesFreq = computeLikeFreq(dataset)
     with open('../Data/joint_freq.pickle', 'rb') as handle:
         jointFreq = pickle.load(handle)
     columns = ['Classes', 'UserLike']
@@ -65,6 +62,26 @@ def dataWithConditionalProb():
     dataset['ConditionalFreq'] = conditionalFreqs
     return dataset
 
+def dataWithMeanConditionalProb(data):
+    likesFreq = computeLikeFreq(data)
+    with open('../Data/joint_freq.pickle', 'rb') as handle:
+        jointFreq = pickle.load(handle)
+    columns = ['Classes', 'ConditionalFreq', 'UserLike']
+    dataset = data[columns]
+    meanConditionalFreq = []
+    probSum = 0
+    for i, entry in dataset.iterrows():
+        for token in entry['Classes']:
+            prob = jointFreq[token][entry['UserLike']-1] / likesFreq[entry['UserLike']]
+            probSum += prob
+        meanConditionalFreq.append(probSum/len(entry['Classes']))
+        probSum = 0
+    data['MeanConditionalFreq'] = meanConditionalFreq
+    return data
 
 
-data = dataWithConditionalProb()
+def addExtractedFeatures():
+    data = preprocessDataset()
+    data = dataWithConditionalProb(data)
+    data = dataWithMeanConditionalProb(data)
+    return data

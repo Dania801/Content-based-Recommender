@@ -254,13 +254,13 @@ def datasetStats(data):
     [appendToDesk (analyzeFeature(data, row), 'featuresInfo') for row in data]
     [print (analyzeFeature(data, row)) for row in data]
     relevant = data.Relevant
-    plotStats(data, 'Relevant', 'relevant_freq')
-    plotStats(data, 'Readability', 'readability_freq')
-    plotStats(data, 'Novelty', 'novelty_freq')
-    plotStats(data, 'Authority', 'authority_freq')
+    plotStats(data, 'Relevant', 'relevant_freq', True)
+    plotStats(data, 'Readability', 'readability_freq', True)
+    plotStats(data, 'Novelty', 'novelty_freq', True)
+    plotStats(data, 'Authority', 'authority_freq', True)
 
 
-def plotStats(data, featureName, fileName):
+def plotStats(data, featureName, fileName, showFigure):
     """
     Save stats about feature as png image 
     @params data: dataframe of the dataset
@@ -276,8 +276,9 @@ def plotStats(data, featureName, fileName):
     featureValues = list(featureDict.values())
     plot.title('Feature: {0}'.format(featureName))
     plot.bar(range(len(featureDict)),featureValues,tick_label=featureNames)
-    plot.savefig('../Stats/{0}.png'.format(fileName))
-    plot.show()
+    if showFigure :
+        plot.savefig('../Stats/{0}.png'.format(fileName))
+        plot.show()
 
 
 def preprocessorScript():
