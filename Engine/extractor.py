@@ -84,4 +84,7 @@ def addExtractedFeatures():
     data = preprocessDataset()
     data = dataWithConditionalProb(data)
     data = dataWithMeanConditionalProb(data)
+    data.to_csv('../Data/all_features.csv')
     return data
+
+# print (addExtractedFeatures())

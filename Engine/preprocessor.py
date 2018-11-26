@@ -94,7 +94,6 @@ def tokenizeClasses(data):
     @params data: dataframe of the dataset
     @rtype {dataFrame, array}
     """
-    print (data.size)
     classes = data.Classes
     punctuationList = [p for p in string.punctuation]
     punctuationList.remove('|')
@@ -291,7 +290,6 @@ def preprocessorScript():
     nullData = removeNullValues(extractedData)
     datasetStats(nullData)
     data, classes = tokenizeClasses(nullData)
-    print (classes)
     classes = getLowFrequencyClasses(classes)
     data = removeLowFreqClasses(data, classes)
     data = removeClassesAmbiguity(data)
