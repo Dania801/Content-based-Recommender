@@ -47,5 +47,24 @@ def classesJointFreq():
         pickle.dump(classesDict, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
 
+def dataWithConditionalProb():
+    dataset = preprocessDataset()
+    likesFreq = computeLikeFreq()
+    with open('../Data/joint_freq.pickle', 'rb') as handle:
+        jointFreq = pickle.load(handle)
+    columns = ['Classes', 'UserLike']
+    data = dataset[columns]
+    conditionalFreqs = []
+    entryProbability = 1
+    for i, entry in data.iterrows():
+        for token in entry['Classes']:
+            prob = jointFreq[token][entry['UserLike']-1] / likesFreq[entry['UserLike']]
+            entryProbability *= prob
+        conditionalFreqs.append(entryProbability)
+        entryProbability = 1
+    dataset['ConditionalFreq'] = conditionalFreqs
+    return dataset
 
-classesJointFreq()
+
+
+data = dataWithConditionalProb()
