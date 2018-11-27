@@ -195,6 +195,16 @@ def analyzeFeature(data, featureName):
         '''.format(featureName, minVal, maxVal, mean, variance)
         return featureInfo
 
+def convertRateToBinary(data):
+    usersLike = data.UserLike
+    userLikeBinary = []
+    for i, entry in data.iterrows():
+        if (entry['UserLike'] >= 4):
+            userLikeBinary.append(1)
+        else:
+            userLikeBinary.append(0)
+    data['UserLikeBinary'] = userLikeBinary
+    return data
 
 def writeIntoDesk(data, fileName):
     """
@@ -294,6 +304,7 @@ def preprocessorScript():
     data = removeLowFreqClasses(data, classes)
     data = removeClassesAmbiguity(data)
     data = removeLowFreqClasses(data, classes)
+    data = convertRateToBinary(data)
     data.to_csv('../Data/clean_data.csv')
 
 
@@ -311,8 +322,8 @@ def preprocessDataset():
     data = removeLowFreqClasses(data, classes)
     data = removeClassesAmbiguity(data)
     data = removeLowFreqClasses(data, classes)
+    data = convertRateToBinary(data)
     return data
-
 
 
 # preprocessorScript()

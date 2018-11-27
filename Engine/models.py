@@ -21,13 +21,26 @@ def LinearRegressionModel():
     xTrainData = trainData[columns]
     yTrainData = trainData['UserLike']
     xTestData = testData[columns]
-    yTestData = testData['UserLike']
+    zTestData = testData['UserLikeBinary']
     lm = LinearRegression()
     lm.fit(xTrainData, yTrainData)
+    zTestData = zTestData.values
     predictions = lm.predict(xTestData)
-    predictions = np.array(predictions).astype(int)
-    yTestData = yTestData.values
-    accuracy = lm.score(xTestData, yTestData)
+    predictions = [int(i) for i in predictions]
+    predictionsArray = []
+    for i, entry in enumerate(predictions):
+        if (predictions[i] >= 4):
+            predictionsArray.append(1)
+        else:
+            predictionsArray.append(0)
+    predictions = [int(i) for i in predictions]
+    predictionsArray = []
+    for i, entry in enumerate(predictions):
+        if (predictions[i] >= 4):
+            predictionsArray.append(1)
+        else:
+            predictionsArray.append(0)
+    accuracy = metrics.accuracy_score(zTestData, predictionsArray)
     print('------------------------------------------------------------')
     print('Linear Regression model accuracy = {0}%'.format(accuracy*100))
     print('------------------------------------------------------------')
@@ -41,15 +54,22 @@ def LogisticRegressionModel():
     xTrainData = trainData[columns]
     yTrainData = trainData['UserLike']
     xTestData = testData[columns]
-    yTestData = testData['UserLike']
+    zTestData = testData['UserLikeBinary']
     lm = LogisticRegression()
     lm.fit(xTrainData, yTrainData)
     predictions = lm.predict(xTestData)
-    predictions = np.array(predictions).astype(int)
-    yTestData = yTestData.values
-    accuracy = lm.score(xTestData, yTestData)
+    zTestData = zTestData.values
+    predictions = [int(i) for i in predictions]
+    predictionsArray = []
+    for i, entry in enumerate(predictions):
+        if (predictions[i] >= 4):
+            predictionsArray.append(1)
+        else:
+            predictionsArray.append(0)
+    accuracy = metrics.accuracy_score(zTestData, predictionsArray)
+    
     print('------------------------------------------------------------')
-    print('Linear Regression model accuracy = {0}%'.format(accuracy*100))
+    print('Logistic Regression model accuracy = {0}%'.format(accuracy*100))
     print('------------------------------------------------------------')
 
 def NaiveBayesModel():
@@ -60,13 +80,28 @@ def NaiveBayesModel():
     xTrainData = trainData[columns]
     yTrainData = trainData['UserLike']
     xTestData = testData[columns]
-    yTestData = testData['UserLike']
+    zTestData = testData['UserLikeBinary']
     lm = GaussianNB()
     lm.fit(xTrainData, yTrainData)
+    zTestData = zTestData.values
     predictions = lm.predict(xTestData)
-    predictions = np.array(predictions).astype(int)
-    yTestData = yTestData.values
-    accuracy = lm.score(xTestData, yTestData)
+    predictions = [int(i) for i in predictions]
+    predictionsArray = []
+    for i, entry in enumerate(predictions):
+        if (predictions[i] >= 4):
+            predictionsArray.append(1)
+        else:
+            predictionsArray.append(0)
+    predictions = [int(i) for i in predictions]
+    predictionsArray = []
+    for i, entry in enumerate(predictions):
+        if (predictions[i] >= 4):
+            predictionsArray.append(1)
+        else:
+            predictionsArray.append(0)
+    accuracy = metrics.accuracy_score(zTestData, predictionsArray)
     print('------------------------------------------------------------')
-    print('Linear Regression model accuracy = {0}%'.format(accuracy*100))
+    print('Naive Bayes model accuracy = {0}%'.format(accuracy*100))
     print('------------------------------------------------------------')
+
+# NaiveBayesModel()
